@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escrow Vault - NexusHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    </style>
+</head>
+<body class="font-sans">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-64 glass min-h-screen p-6">
+            <div class="text-white mb-8">
+                <h2 class="text-2xl font-bold">NexusHub</h2>
+                <p class="text-sm text-gray-300">System Admin</p>
+            </div>
+            <nav class="space-y-2">
+                <a href="admin.html" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    📊 Dashboard
+                </a>
+                <a href="approval-queue.html" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    ✅ Approval Queue
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white font-semibold">
+                    💰 Escrow Vault
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    👥 User Management
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    🏢 Centers
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    📊 Analytics
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    ⚙️ Settings
+                </a>
+                <a href="#" onclick="logout()" class="block px-4 py-3 rounded-lg text-red-300 hover:bg-red-500 hover:bg-opacity-20">
+                    🚪 Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8">
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-white mb-2">💰 Escrow Vault</h1>
+                <p class="text-gray-200">Manage secure payment transactions and fund releases</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Funds Held in Escrow</div>
+                    <div class="text-4xl font-bold text-yellow-400 mb-2">$12,450</div>
+                    <div class="text-gray-300 text-sm">⏳ 15 Active Transactions</div>
+                </div>
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Released This Month</div>
+                    <div class="text-4xl font-bold text-green-400 mb-2">$8,900</div>
+                    <div class="text-gray-300 text-sm">✅ 12 Transactions</div>
+                </div>
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Pending Release</div>
+                    <div class="text-4xl font-bold text-blue-400 mb-2">$3,550</div>
+                    <div class="text-gray-300 text-sm">📜 5 Certificates Issued</div>
+                </div>
+            </div>
+
+            <!-- Filter Options -->
+            <div class="glass rounded-xl p-6 mb-8">
+                <div class="grid md:grid-cols-5 gap-4">
+                    <select id="statusFilter" class="px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white focus:outline-none">
+                        <option value="">All Statuses</option>
+                        <option value="held">Held</option>
+                        <option value="released">Released</option>
+                        <option value="refunded">Refunded</option>
+                    </select>
+                    <input type="text" id="searchStudent" placeholder="Search by student..." 
+                        class="px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none">
+                    <input type="text" id="searchCenter" placeholder="Search by center..." 
+                        class="px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none">
+                    <input type="date" id="dateFrom" 
+                        class="px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white focus:outline-none">
+                    <button onclick="loadTransactions()" class="bg-purple-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-600">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-2xl font-bold text-white mb-4">Escrow Transactions</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-white">
+                        <thead>
+                            <tr class="border-b border-gray-600">
+                                <th class="text-left py-3">Transaction ID</th>
+                                <th class="text-left py-3">Student</th>
+                                <th class="text-left py-3">Training Center</th>
+                                <th class="text-left py-3">Amount</th>
+                                <th class="text-left py-3">Status</th>
+                                <th class="text-left py-3">Date</th>
+                                <th class="text-left py-3">Certificate</th>
+                                <th class="text-left py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTable">
+                            <!-- Sample Data -->
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3">#ESC-001</td>
+                                <td class="py-3">John Doe</td>
+                                <td class="py-3">TechHub Academy</td>
+                                <td class="py-3 font-bold text-yellow-400">$499</td>
+                                <td class="py-3">
+                                    <span class="bg-yellow-500 px-3 py-1 rounded text-sm">Held</span>
+                                </td>
+                                <td class="py-3">2024-01-10</td>
+                                <td class="py-3">
+                                    <span class="text-red-400">Not Issued</span>
+                                </td>
+                                <td class="py-3">
+                                    <button disabled class="bg-gray-600 px-4 py-1 rounded text-sm cursor-not-allowed opacity-50">
+                                        Release Funds
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3">#ESC-002</td>
+                                <td class="py-3">Jane Smith</td>
+                                <td class="py-3">CodeCraft Institute</td>
+                                <td class="py-3 font-bold text-yellow-400">$599</td>
+                                <td class="py-3">
+                                    <span class="bg-yellow-500 px-3 py-1 rounded text-sm">Held</span>
+                                </td>
+                                <td class="py-3">2024-01-12</td>
+                                <td class="py-3">
+                                    <span class="text-green-400">✓ Issued</span>
+                                </td>
+                                <td class="py-3">
+                                    <button onclick="releaseF unds('ESC-002')" class="bg-green-500 px-4 py-1 rounded text-sm hover:bg-green-600">
+                                        Release Funds
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3">#ESC-003</td>
+                                <td class="py-3">Mike Johnson</td>
+                                <td class="py-3">Digital Futures Lab</td>
+                                <td class="py-3 font-bold text-green-400">$799</td>
+                                <td class="py-3">
+                                    <span class="bg-green-500 px-3 py-1 rounded text-sm">Released</span>
+                                </td>
+                                <td class="py-3">2024-01-05</td>
+                                <td class="py-3">
+                                    <span class="text-green-400">✓ Issued</span>
+                                </td>
+                                <td class="py-3">
+                                    <button disabled class="bg-gray-600 px-4 py-1 rounded text-sm cursor-not-allowed opacity-50">
+                                        Released
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3">#ESC-004</td>
+                                <td class="py-3">Sarah Williams</td>
+                                <td class="py-3">TechHub Academy</td>
+                                <td class="py-3 font-bold text-yellow-400">$499</td>
+                                <td class="py-3">
+                                    <span class="bg-yellow-500 px-3 py-1 rounded text-sm">Held</span>
+                                </td>
+                                <td class="py-3">2024-01-14</td>
+                                <td class="py-3">
+                                    <span class="text-green-400">✓ Issued</span>
+                                </td>
+                                <td class="py-3">
+                                    <button onclick="releaseFunds('ESC-004')" class="bg-green-500 px-4 py-1 rounded text-sm hover:bg-green-600">
+                                        Release Funds
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3">#ESC-005</td>
+                                <td class="py-3">Alex Chen</td>
+                                <td class="py-3">CodeCraft Institute</td>
+                                <td class="py-3 font-bold text-green-400">$599</td>
+                                <td class="py-3">
+                                    <span class="bg-green-500 px-3 py-1 rounded text-sm">Released</span>
+                                </td>
+                                <td class="py-3">2024-01-08</td>
+                                <td class="py-3">
+                                    <span class="text-green-400">✓ Issued</span>
+                                </td>
+                                <td class="py-3">
+                                    <button disabled class="bg-gray-600 px-4 py-1 rounded text-sm cursor-not-allowed opacity-50">
+                                        Released
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="glass rounded-xl p-6 mt-8">
+                <h3 class="text-xl font-bold text-white mb-3">ℹ️ Escrow Release Policy</h3>
+                <div class="text-gray-200 space-y-2">
+                    <p>✅ Funds can only be released after the Training Center has issued a Smart QR Certificate to the student.</p>
+                    <p>✅ The certificate confirms that the student has successfully completed all project requirements.</p>
+                    <p>✅ Once released, funds are transferred to the training center's account within 24-48 hours.</p>
+                    <p>⚠️ In case of disputes, funds remain held until resolution by System Admin.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadTransactions() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/escrow', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.transactions) {
+                    displayTransactions(data.transactions);
+                }
+            } catch (error) {
+                console.error('Failed to load transactions:', error);
+            }
+        }
+
+        function displayTransactions(transactions) {
+            // Would populate table with real data
+            console.log('Transactions:', transactions);
+        }
+
+        async function releaseFunds(transactionId) {
+            if (!confirm('Are you sure you want to release these funds? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/escrow/${transactionId}/release`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Funds released successfully!');
+                    loadTransactions();
+                } else {
+                    alert(data.error || 'Failed to release funds');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '../index.html';
+        }
+
+        // Load transactions on page load
+        loadTransactions();
+    </script>
+</body>
+</html>
