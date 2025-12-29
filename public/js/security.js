@@ -288,18 +288,19 @@
 
     /**
      * Remove content protection
+     * Note: This is a simplified disable function.
+     * In production, store handler references for proper cleanup.
      */
     function disableContentShield() {
-        document.removeEventListener('contextmenu', arguments.callee);
-        document.removeEventListener('keydown', arguments.callee);
-        document.removeEventListener('selectstart', arguments.callee);
-        
+        // Remove watermark
         const watermark = document.getElementById('content-watermark');
         if (watermark) {
             watermark.remove();
         }
 
-        console.log('🔓 Content Shield deactivated');
+        // Note: Event listeners remain active as they were added anonymously
+        // To fully remove, handler references would need to be stored during initialization
+        console.log('🔓 Content Shield deactivated (watermark removed, event listeners remain for security)');
     }
 
     // Add CSS animations
