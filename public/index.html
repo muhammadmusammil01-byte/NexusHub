@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusHub - Project Incubation Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <link rel="stylesheet" href="/css/glassmorphic.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 min-h-screen">
+    <!-- Content Shield - Anti-theft Protection -->
+    <div id="app" class="relative">
+        <!-- Navigation -->
+        <nav class="glass-nav fixed top-0 left-0 right-0 z-50 backdrop-blur-lg bg-white/10 border-b border-white/20">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">N</span>
+                        </div>
+                        <span class="text-white font-bold text-xl">NexusHub</span>
+                    </div>
+                    <div id="nav-menu" class="hidden md:flex space-x-6">
+                        <a href="#" onclick="showPage('marketplace')" class="text-white hover:text-purple-300 transition">Marketplace</a>
+                        <a href="#" onclick="showPage('lab')" class="text-white hover:text-purple-300 transition">Virtual Lab</a>
+                        <a href="#" onclick="showPage('certificates')" class="text-white hover:text-purple-300 transition">Certificates</a>
+                        <a href="#" onclick="showPage('escrow')" class="text-white hover:text-purple-300 transition">My Transactions</a>
+                    </div>
+                    <div id="auth-buttons">
+                        <button onclick="showPage('login')" class="glass-button px-4 py-2 text-white mr-2">Login</button>
+                        <button onclick="showPage('register')" class="glass-button-primary px-4 py-2 text-white">Register</button>
+                    </div>
+                    <div id="user-menu" class="hidden">
+                        <button onclick="logout()" class="glass-button px-4 py-2 text-white">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="pt-20 min-h-screen">
+            <!-- Login Page -->
+            <div id="login-page" class="page hidden">
+                <div class="container mx-auto px-4 py-12">
+                    <div class="max-w-md mx-auto glass-panel p-8 rounded-2xl">
+                        <h2 class="text-3xl font-bold text-white mb-6 text-center">Login to NexusHub</h2>
+                        <form id="login-form" onsubmit="handleLogin(event)">
+                            <div class="mb-4">
+                                <label class="block text-white mb-2">Email</label>
+                                <input type="email" name="email" required 
+                                       class="glass-input w-full px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20 focus:border-purple-400 focus:outline-none">
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-white mb-2">Password</label>
+                                <input type="password" name="password" required 
+                                       class="glass-input w-full px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20 focus:border-purple-400 focus:outline-none">
+                            </div>
+                            <button type="submit" class="glass-button-primary w-full py-3 rounded-lg text-white font-semibold">
+                                Login
+                            </button>
+                            <p class="text-white text-center mt-4">
+                                Don't have an account? 
+                                <a href="#" onclick="showPage('register')" class="text-purple-300 hover:text-purple-200">Register</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Page -->
+            <div id="register-page" class="page hidden">
+                <div class="container mx-auto px-4 py-12">
+                    <div class="max-w-md mx-auto glass-panel p-8 rounded-2xl">
+                        <h2 class="text-3xl font-bold text-white mb-6 text-center">Create Account</h2>
+                        <form id="register-form" onsubmit="handleRegister(event)">
+                            <div class="mb-4">
+                                <label class="block text-white mb-2">Full Name</label>
+                                <input type="text" name="full_name" required 
+                                       class="glass-input w-full px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20 focus:border-purple-400 focus:outline-none">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-white mb-2">Email</label>
+                                <input type="email" name="email" required 
+                                       class="glass-input w-full px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20 focus:border-purple-400 focus:outline-none">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-white mb-2">Password</label>
+                                <input type="password" name="password" required 
+                                       class="glass-input w-full px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20 focus:border-purple-400 focus:outline-none">
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-white mb-2">Role</label>
+                                <select name="role" required 
+                                        class="glass-input w-full px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20 focus:border-purple-400 focus:outline-none">
+                                    <option value="">Select Role</option>
+                                    <option value="Student">Student</option>
+                                    <option value="Mentor">Mentor</option>
+                                    <option value="CenterAdmin">Center Admin</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="glass-button-primary w-full py-3 rounded-lg text-white font-semibold">
+                                Register
+                            </button>
+                            <p class="text-white text-center mt-4">
+                                Already have an account? 
+                                <a href="#" onclick="showPage('login')" class="text-purple-300 hover:text-purple-200">Login</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marketplace Page -->
+            <div id="marketplace-page" class="page">
+                <div class="container mx-auto px-4 py-12">
+                    <h1 class="text-4xl font-bold text-white mb-8">Project Marketplace</h1>
+                    
+                    <!-- Search and Filters -->
+                    <div class="glass-panel p-6 rounded-2xl mb-8">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <input type="text" id="search-input" placeholder="Search projects..." 
+                                   class="glass-input px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20">
+                            <select id="tech-filter" class="glass-input px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20">
+                                <option value="">All Technologies</option>
+                                <option value="React">React</option>
+                                <option value="Node.js">Node.js</option>
+                                <option value="Python">Python</option>
+                                <option value="Java">Java</option>
+                            </select>
+                            <input type="number" id="min-price" placeholder="Min Price" 
+                                   class="glass-input px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20">
+                            <button onclick="searchProjects()" class="glass-button-primary px-4 py-2 rounded-lg text-white">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Projects Grid -->
+                    <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Projects will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Virtual Lab Page -->
+            <div id="lab-page" class="page hidden">
+                <div class="container mx-auto px-4 py-12">
+                    <h1 class="text-4xl font-bold text-white mb-8">Virtual Lab</h1>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Code Editor -->
+                        <div class="lg:col-span-2 glass-panel p-6 rounded-2xl">
+                            <div class="mb-4 flex justify-between items-center">
+                                <h3 class="text-xl font-semibold text-white">Code Editor</h3>
+                                <select id="language-select" class="glass-input px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20">
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="python">Python</option>
+                                    <option value="java">Java</option>
+                                    <option value="cpp">C++</option>
+                                </select>
+                            </div>
+                            <textarea id="code-editor" 
+                                      class="glass-input w-full h-96 px-4 py-2 rounded-lg text-white bg-black/30 border border-white/20 font-mono"
+                                      placeholder="// Write your code here..."></textarea>
+                            <div class="mt-4 flex space-x-4">
+                                <button onclick="requestDebug()" class="glass-button-primary px-4 py-2 rounded-lg text-white">
+                                    AI Debug
+                                </button>
+                                <button onclick="runCode()" class="glass-button px-4 py-2 rounded-lg text-white">
+                                    Run Code
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- AI Debugger Panel -->
+                        <div class="glass-panel p-6 rounded-2xl">
+                            <h3 class="text-xl font-semibold text-white mb-4">AI Debugger</h3>
+                            <div id="debug-output" class="text-white text-sm space-y-4 max-h-96 overflow-y-auto">
+                                <p class="text-gray-300">AI suggestions will appear here...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session Control -->
+                    <div class="mt-6 glass-panel p-6 rounded-2xl">
+                        <h3 class="text-xl font-semibold text-white mb-4">Session Control</h3>
+                        <div class="flex space-x-4">
+                            <input type="text" id="session-code" placeholder="Enter session code" 
+                                   class="glass-input px-4 py-2 rounded-lg text-white bg-white/10 border border-white/20 flex-1">
+                            <button onclick="joinLabSession()" class="glass-button-primary px-6 py-2 rounded-lg text-white">
+                                Join Session
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certificates Page -->
+            <div id="certificates-page" class="page hidden">
+                <div class="container mx-auto px-4 py-12">
+                    <h1 class="text-4xl font-bold text-white mb-8">My Certificates</h1>
+                    <div id="certificates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Certificates will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Escrow Transactions Page -->
+            <div id="escrow-page" class="page hidden">
+                <div class="container mx-auto px-4 py-12">
+                    <h1 class="text-4xl font-bold text-white mb-8">My Transactions</h1>
+                    <div id="transactions-list" class="space-y-4">
+                        <!-- Transactions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Watermark Overlay -->
+        <div id="watermark-overlay" class="watermark-text"></div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/content-shield.js"></script>
+    <script src="/js/lab.js"></script>
+</body>
+</html>
