@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Lab - NexusHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; margin: 0; }
+        .CodeMirror { height: 500px; font-size: 14px; }
+        .chat-messages { max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body class="font-sans">
+    <div class="flex h-screen p-4 gap-4">
+        <!-- Left Panel: Mentor's Code (Read-only for students) -->
+        <div class="flex-1 glass rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-white">👨‍🏫 Mentor's Code (Master View)</h2>
+                <select id="language" class="px-3 py-1 rounded bg-white bg-opacity-20 text-white">
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="text/html">HTML</option>
+                </select>
+            </div>
+            <textarea id="mentorEditor"></textarea>
+            <div class="mt-4 flex gap-2">
+                <button id="mirrorBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    🔄 Mirror to Students
+                </button>
+                <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    ▶️ Run Code
+                </button>
+            </div>
+        </div>
+
+        <!-- Middle Panel: Student's Practice Space -->
+        <div class="flex-1 glass rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-white">👨‍🎓 Your Practice Space</h2>
+                <div class="flex gap-2">
+                    <button id="aiDebugBtn" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                        🤖 AI Debug
+                    </button>
+                    <button id="submitBtn" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600">
+                        📤 Submit
+                    </button>
+                </div>
+            </div>
+            <textarea id="studentEditor"></textarea>
+            <div id="aiConsole" class="mt-4 glass p-4 rounded-lg text-white hidden">
+                <h3 class="font-bold mb-2">🤖 AI Debugger (Gemini API)</h3>
+                <div id="aiOutput" class="text-sm text-gray-200"></div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Video Call & Chat -->
+        <div class="w-80 flex flex-col gap-4">
+            <!-- Video Call -->
+            <div class="glass rounded-xl p-4">
+                <h3 class="text-lg font-bold text-white mb-3">📹 Video Call</h3>
+                <div class="bg-gray-800 rounded-lg h-48 flex items-center justify-center text-gray-400">
+                    Video placeholder
+                </div>
+                <div class="mt-3 flex gap-2">
+                    <button class="flex-1 bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600">
+                        🔇 Mute
+                    </button>
+                    <button class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm hover:bg-gray-600">
+                        📷 Video
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat -->
+            <div class="glass rounded-xl p-4 flex-1 flex flex-col">
+                <h3 class="text-lg font-bold text-white mb-3">💬 Project Chat</h3>
+                <div id="chatMessages" class="chat-messages flex-1 overflow-y-auto mb-3 space-y-2">
+                    <!-- Messages will appear here -->
+                </div>
+                <div class="flex gap-2">
+                    <input 
+                        type="text" 
+                        id="chatInput" 
+                        placeholder="Type a message..."
+                        class="flex-1 px-3 py-2 rounded bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none text-sm"
+                    >
+                    <button id="sendChatBtn" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 text-sm">
+                        Send
+                    </button>
+                </div>
+            </div>
+
+            <!-- Session Info -->
+            <div class="glass rounded-xl p-4">
+                <h3 class="text-lg font-bold text-white mb-2">ℹ️ Session Info</h3>
+                <div class="text-sm text-gray-200 space-y-1">
+                    <div><strong>Session ID:</strong> <span id="sessionInfo">Loading...</span></div>
+                    <div><strong>Role:</strong> <span id="userRole">Student</span></div>
+                    <div><strong>Status:</strong> <span class="text-green-400">● Active</span></div>
+                </div>
+                <button class="mt-3 w-full bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600">
+                    Leave Lab
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let socket;
+        let mentorEditor, studentEditor;
+        let sessionId, userId, userRole;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get session info from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            sessionId = urlParams.get('session') || window.location.pathname.split('/').pop();
+            
+            // Get user info from localStorage
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            userId = user.id;
+            userRole = user.roles?.[0] || 'Student';
+
+            document.getElementById('sessionInfo').textContent = sessionId;
+            document.getElementById('userRole').textContent = userRole;
+
+            // Initialize CodeMirror editors
+            mentorEditor = CodeMirror.fromTextArea(document.getElementById('mentorEditor'), {
+                mode: 'javascript',
+                theme: 'default',
+                lineNumbers: true,
+                readOnly: userRole !== 'Mentor'
+            });
+
+            studentEditor = CodeMirror.fromTextArea(document.getElementById('studentEditor'), {
+                mode: 'javascript',
+                theme: 'default',
+                lineNumbers: true
+            });
+
+            // Initialize Socket.io
+            initializeSocket();
+
+            // Event listeners
+            document.getElementById('mirrorBtn').addEventListener('click', mirrorCode);
+            document.getElementById('aiDebugBtn').addEventListener('click', runAIDebugger);
+            document.getElementById('submitBtn').addEventListener('click', submitCode);
+            document.getElementById('sendChatBtn').addEventListener('click', sendChat);
+            document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendChat();
+            });
+            document.getElementById('language').addEventListener('change', changeLanguage);
+
+            // Disable mentor controls for students
+            if (userRole !== 'Mentor') {
+                document.getElementById('mirrorBtn').disabled = true;
+                document.getElementById('mirrorBtn').classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        });
+
+        function initializeSocket() {
+            socket = io();
+
+            socket.on('connect', () => {
+                console.log('Connected to WebSocket');
+                socket.emit('join-lab', { sessionId, userId, role: userRole });
+            });
+
+            // Listen for code mirroring from mentor
+            socket.on('code-mirrored', (data) => {
+                console.log('Received mirrored code from mentor');
+                if (userRole !== 'Mentor') {
+                    mentorEditor.setValue(data.code);
+                }
+                showNotification('Mentor updated the code');
+            });
+
+            // Listen for student submissions (for mentor)
+            socket.on('student-submission', (data) => {
+                if (userRole === 'Mentor') {
+                    showNotification(`Student ${data.studentId} submitted code`);
+                }
+            });
+
+            // Listen for AI debugging results
+            socket.on('ai-feedback', (data) => {
+                if (data.studentId === userId) {
+                    displayAIFeedback(data.result);
+                }
+            });
+
+            // Listen for chat messages
+            socket.on('chat-message', (data) => {
+                displayChatMessage(data);
+            });
+
+            // Listen for user join/leave
+            socket.on('user-joined', (data) => {
+                showNotification(`${data.role} joined the session`);
+            });
+        }
+
+        function mirrorCode() {
+            const code = mentorEditor.getValue();
+            const language = document.getElementById('language').value;
+            
+            socket.emit('mentor-code-update', {
+                sessionId,
+                code,
+                language
+            });
+
+            showNotification('Code mirrored to all students');
+        }
+
+        function submitCode() {
+            const code = studentEditor.getValue();
+            const language = document.getElementById('language').value;
+
+            socket.emit('student-code-submit', {
+                sessionId,
+                studentId: userId,
+                code,
+                language
+            });
+
+            showNotification('Code submitted to mentor');
+        }
+
+        async function runAIDebugger() {
+            const studentCode = studentEditor.getValue();
+            const mentorCode = mentorEditor.getValue();
+            const aiConsole = document.getElementById('aiConsole');
+            const aiOutput = document.getElementById('aiOutput');
+
+            aiConsole.classList.remove('hidden');
+            aiOutput.innerHTML = '<div class="animate-pulse">🤖 AI is analyzing your code...</div>';
+
+            try {
+                // Call Gemini AI API to compare student code with mentor's logic
+                const response = await fetch('/api/lab/ai-debug', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        studentCode,
+                        mentorCode,
+                        sessionId
+                    })
+                });
+
+                const data = await response.json();
+                displayAIFeedback(data.feedback);
+
+                // Emit result to session
+                socket.emit('ai-debug-result', {
+                    sessionId,
+                    studentId: userId,
+                    result: data.feedback
+                });
+
+            } catch (error) {
+                aiOutput.innerHTML = '<div class="text-red-400">❌ AI Debugger error. Please try again.</div>';
+            }
+        }
+
+        function displayAIFeedback(feedback) {
+            const aiOutput = document.getElementById('aiOutput');
+            const aiConsole = document.getElementById('aiConsole');
+            
+            aiConsole.classList.remove('hidden');
+            aiOutput.innerHTML = `
+                <div class="space-y-2">
+                    <div><strong>Analysis:</strong></div>
+                    <div class="text-gray-300">${feedback || 'Your code looks good! Keep up the great work.'}</div>
+                    <div class="mt-2 text-xs text-gray-400">Powered by Gemini AI</div>
+                </div>
+            `;
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            socket.emit('lab-chat', {
+                sessionId,
+                userId,
+                userName: user.fullName || user.username,
+                message
+            });
+
+            input.value = '';
+        }
+
+        function displayChatMessage(data) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'glass p-2 rounded text-sm';
+            messageEl.innerHTML = `
+                <div class="font-semibold text-purple-300">${data.userName}</div>
+                <div class="text-gray-200">${data.message}</div>
+            `;
+            messagesDiv.appendChild(messageEl);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function changeLanguage(e) {
+            const mode = e.target.value;
+            mentorEditor.setOption('mode', mode);
+            studentEditor.setOption('mode', mode);
+        }
+
+        function showNotification(message) {
+            // Simple notification (could be enhanced with toast library)
+            console.log('Notification:', message);
+        }
+    </script>
+</body>
+</html>
