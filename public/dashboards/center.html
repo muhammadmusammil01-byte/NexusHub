@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Center Admin Dashboard - NexusHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    </style>
+</head>
+<body class="font-sans">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-64 glass min-h-screen p-6">
+            <div class="text-white mb-8">
+                <h2 class="text-2xl font-bold">NexusHub</h2>
+                <p class="text-sm text-gray-300">Center Admin</p>
+            </div>
+            <nav class="space-y-2">
+                <a href="#" class="block px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white font-semibold">
+                    📊 Dashboard
+                </a>
+                <a href="project-upload.html" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    📝 Upload Project
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    📚 My Projects
+                </a>
+                <a href="mentor-management.html" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    👥 Manage Mentors
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    👨‍🎓 Students
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    📜 Issue Certificates
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    💰 Revenue
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    ⚙️ Settings
+                </a>
+                <a href="#" onclick="logout()" class="block px-4 py-3 rounded-lg text-red-300 hover:bg-red-500 hover:bg-opacity-20">
+                    🚪 Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">Center Dashboard</h1>
+                    <p class="text-gray-200" id="centerName">Loading...</p>
+                </div>
+                <button onclick="window.location.href='project-upload.html'" class="bg-purple-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-600">
+                    + Upload New Project
+                </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Total Projects</div>
+                    <div class="text-4xl font-bold text-white mb-2" id="totalProjects">0</div>
+                    <div class="text-blue-400 text-sm">📚 Published</div>
+                </div>
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Active Students</div>
+                    <div class="text-4xl font-bold text-white mb-2">45</div>
+                    <div class="text-green-400 text-sm">👨‍🎓 Enrolled</div>
+                </div>
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Total Revenue</div>
+                    <div class="text-4xl font-bold text-white mb-2" id="totalRevenue">$0</div>
+                    <div class="text-yellow-400 text-sm">💰 This Month</div>
+                </div>
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Active Mentors</div>
+                    <div class="text-4xl font-bold text-white mb-2">8</div>
+                    <div class="text-purple-400 text-sm">👥 Available</div>
+                </div>
+            </div>
+
+            <!-- Revenue Chart & Top Projects -->
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="glass rounded-xl p-6">
+                    <h2 class="text-2xl font-bold text-white mb-4">📈 Revenue Overview</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-gray-300 mb-2">
+                                <span>Released Funds</span>
+                                <span class="text-green-400 font-bold">$8,900</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 70%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-gray-300 mb-2">
+                                <span>In Escrow</span>
+                                <span class="text-yellow-400 font-bold">$3,550</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 30%"></div>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-gray-600">
+                            <div class="flex justify-between text-white font-bold">
+                                <span>Total</span>
+                                <span>$12,450</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass rounded-xl p-6">
+                    <h2 class="text-2xl font-bold text-white mb-4">⭐ Top Projects</h2>
+                    <div class="space-y-3">
+                        <div class="bg-white bg-opacity-10 rounded-lg p-3">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-white font-semibold">AI Chatbot Development</h3>
+                                    <p class="text-gray-300 text-sm">18 enrollments</p>
+                                </div>
+                                <span class="text-green-400 font-bold">$8,982</span>
+                            </div>
+                        </div>
+                        <div class="bg-white bg-opacity-10 rounded-lg p-3">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-white font-semibold">E-commerce Platform</h3>
+                                    <p class="text-gray-300 text-sm">12 enrollments</p>
+                                </div>
+                                <span class="text-green-400 font-bold">$5,988</span>
+                            </div>
+                        </div>
+                        <div class="bg-white bg-opacity-10 rounded-lg p-3">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-white font-semibold">IoT Home Automation</h3>
+                                    <p class="text-gray-300 text-sm">9 enrollments</p>
+                                </div>
+                                <span class="text-green-400 font-bold">$4,491</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Certificates -->
+            <div class="glass rounded-xl p-6 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-white">📜 Pending Certificates to Issue</h2>
+                    <span class="bg-red-500 px-3 py-1 rounded text-white text-sm">5 Pending</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-white">
+                        <thead>
+                            <tr class="border-b border-gray-600">
+                                <th class="text-left py-3">Student Name</th>
+                                <th class="text-left py-3">Project</th>
+                                <th class="text-left py-3">Completion Date</th>
+                                <th class="text-left py-3">Status</th>
+                                <th class="text-left py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3">John Doe</td>
+                                <td class="py-3">AI Chatbot Development</td>
+                                <td class="py-3">2024-01-15</td>
+                                <td class="py-3"><span class="bg-yellow-500 px-2 py-1 rounded text-xs">Ready</span></td>
+                                <td class="py-3">
+                                    <button class="bg-green-500 px-4 py-1 rounded text-sm hover:bg-green-600">
+                                        Issue Certificate
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3">Jane Smith</td>
+                                <td class="py-3">E-commerce Platform</td>
+                                <td class="py-3">2024-01-14</td>
+                                <td class="py-3"><span class="bg-yellow-500 px-2 py-1 rounded text-xs">Ready</span></td>
+                                <td class="py-3">
+                                    <button class="bg-green-500 px-4 py-1 rounded text-sm hover:bg-green-600">
+                                        Issue Certificate
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-2xl font-bold text-white mb-4">⚡ Quick Actions</h2>
+                <div class="grid md:grid-cols-4 gap-4">
+                    <button onclick="window.location.href='project-upload.html'" class="bg-blue-500 text-white p-4 rounded-lg hover:bg-blue-600">
+                        <div class="text-2xl mb-2">📝</div>
+                        <div class="font-semibold">Upload Project</div>
+                    </button>
+                    <button onclick="window.location.href='mentor-management.html'" class="bg-purple-500 text-white p-4 rounded-lg hover:bg-purple-600">
+                        <div class="text-2xl mb-2">👥</div>
+                        <div class="font-semibold">Manage Mentors</div>
+                    </button>
+                    <button class="bg-green-500 text-white p-4 rounded-lg hover:bg-green-600">
+                        <div class="text-2xl mb-2">📜</div>
+                        <div class="font-semibold">Issue Certificates</div>
+                    </button>
+                    <button class="bg-yellow-500 text-white p-4 rounded-lg hover:bg-yellow-600">
+                        <div class="text-2xl mb-2">💰</div>
+                        <div class="font-semibold">View Revenue</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        async function loadStats() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/dashboard/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.stats) {
+                    document.getElementById('totalProjects').textContent = data.stats.totalProjects || 0;
+                    document.getElementById('totalRevenue').textContent = `$${data.stats.totalRevenue || 0}`;
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '../index.html';
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

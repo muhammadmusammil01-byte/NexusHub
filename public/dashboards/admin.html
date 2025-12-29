@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - NexusHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    </style>
+</head>
+<body class="font-sans">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-64 glass min-h-screen p-6">
+            <div class="text-white mb-8">
+                <h2 class="text-2xl font-bold">NexusHub</h2>
+                <p class="text-sm text-gray-300">System Admin</p>
+            </div>
+            <nav class="space-y-2">
+                <a href="#" class="block px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white font-semibold">
+                    📊 Dashboard
+                </a>
+                <a href="approval-queue.html" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    ✅ Approval Queue
+                </a>
+                <a href="escrow-vault.html" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    💰 Escrow Vault
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    👥 User Management
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    🏢 Centers
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    📊 Analytics
+                </a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-white hover:bg-white hover:bg-opacity-10">
+                    ⚙️ Settings
+                </a>
+                <a href="#" onclick="logout()" class="block px-4 py-3 rounded-lg text-red-300 hover:bg-red-500 hover:bg-opacity-20">
+                    🚪 Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8">
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-white mb-2">System Admin Dashboard</h1>
+                <p class="text-gray-200">Monitor and manage the entire NexusHub platform</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Total Escrow Funds</div>
+                    <div class="text-4xl font-bold text-white mb-2" id="totalEscrow">$0</div>
+                    <div class="text-yellow-400 text-sm">💰 Held in Vault</div>
+                </div>
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Active Users</div>
+                    <div class="text-4xl font-bold text-white mb-2" id="totalUsers">0</div>
+                    <div class="text-green-400 text-sm">👥 Platform-wide</div>
+                </div>
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Active Centers</div>
+                    <div class="text-4xl font-bold text-white mb-2" id="activeCenters">0</div>
+                    <div class="text-blue-400 text-sm">🏢 Verified</div>
+                </div>
+                <div class="glass rounded-xl p-6">
+                    <div class="text-gray-300 text-sm mb-2">Pending Approvals</div>
+                    <div class="text-4xl font-bold text-white mb-2">3</div>
+                    <div class="text-red-400 text-sm">⏳ Awaiting Review</div>
+                </div>
+            </div>
+
+            <!-- Recent Activity & Escrow -->
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="glass rounded-xl p-6">
+                    <h2 class="text-2xl font-bold text-white mb-4">🔔 Recent Activity</h2>
+                    <div class="space-y-3">
+                        <div class="bg-white bg-opacity-10 rounded-lg p-3 text-sm">
+                            <div class="text-white font-semibold">New Center Registration</div>
+                            <div class="text-gray-300">TechVision Academy - Pending Approval</div>
+                            <div class="text-gray-400 text-xs mt-1">2 hours ago</div>
+                        </div>
+                        <div class="bg-white bg-opacity-10 rounded-lg p-3 text-sm">
+                            <div class="text-white font-semibold">Certificate Issued</div>
+                            <div class="text-gray-300">Student completed AI Chatbot project</div>
+                            <div class="text-gray-400 text-xs mt-1">5 hours ago</div>
+                        </div>
+                        <div class="bg-white bg-opacity-10 rounded-lg p-3 text-sm">
+                            <div class="text-white font-semibold">Escrow Released</div>
+                            <div class="text-gray-300">$499 released to TechHub Academy</div>
+                            <div class="text-gray-400 text-xs mt-1">1 day ago</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass rounded-xl p-6">
+                    <h2 class="text-2xl font-bold text-white mb-4">💰 Escrow Summary</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Held Funds</span>
+                            <span class="text-2xl font-bold text-yellow-400">$12,450</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Released This Month</span>
+                            <span class="text-2xl font-bold text-green-400">$8,900</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Pending Certificates</span>
+                            <span class="text-2xl font-bold text-blue-400">5</span>
+                        </div>
+                        <button onclick="window.location.href='escrow-vault.html'" class="w-full bg-purple-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-purple-600 mt-4">
+                            View Full Escrow Vault →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Center Approvals -->
+            <div class="glass rounded-xl p-6 mb-8">
+                <h2 class="text-2xl font-bold text-white mb-4">✅ Pending Center Approvals</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-white">
+                        <thead>
+                            <tr class="border-b border-gray-600">
+                                <th class="text-left py-3">Center Name</th>
+                                <th class="text-left py-3">Contact Email</th>
+                                <th class="text-left py-3">License Number</th>
+                                <th class="text-left py-3">Submitted</th>
+                                <th class="text-left py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3">TechVision Academy</td>
+                                <td class="py-3">admin@techvision.com</td>
+                                <td class="py-3">LIC-2024-001</td>
+                                <td class="py-3">2 hours ago</td>
+                                <td class="py-3">
+                                    <button class="bg-green-500 px-3 py-1 rounded text-sm mr-2 hover:bg-green-600">Approve</button>
+                                    <button class="bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-600">Reject</button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3">CodeCraft Institute</td>
+                                <td class="py-3">info@codecraft.edu</td>
+                                <td class="py-3">LIC-2024-002</td>
+                                <td class="py-3">1 day ago</td>
+                                <td class="py-3">
+                                    <button class="bg-green-500 px-3 py-1 rounded text-sm mr-2 hover:bg-green-600">Approve</button>
+                                    <button class="bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-600">Reject</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button onclick="window.location.href='approval-queue.html'" class="mt-4 text-purple-300 hover:text-purple-200">
+                    View All Pending Approvals →
+                </button>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-2xl font-bold text-white mb-4">⚡ Quick Actions</h2>
+                <div class="grid md:grid-cols-4 gap-4">
+                    <button onclick="window.location.href='approval-queue.html'" class="bg-green-500 text-white p-4 rounded-lg hover:bg-green-600">
+                        <div class="text-2xl mb-2">✅</div>
+                        <div class="font-semibold">Approve Centers</div>
+                    </button>
+                    <button onclick="window.location.href='escrow-vault.html'" class="bg-yellow-500 text-white p-4 rounded-lg hover:bg-yellow-600">
+                        <div class="text-2xl mb-2">💰</div>
+                        <div class="font-semibold">Release Escrow</div>
+                    </button>
+                    <button class="bg-blue-500 text-white p-4 rounded-lg hover:bg-blue-600">
+                        <div class="text-2xl mb-2">👥</div>
+                        <div class="font-semibold">Manage Users</div>
+                    </button>
+                    <button class="bg-purple-500 text-white p-4 rounded-lg hover:bg-purple-600">
+                        <div class="text-2xl mb-2">📊</div>
+                        <div class="font-semibold">View Analytics</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadStats() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/dashboard/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.stats) {
+                    document.getElementById('totalEscrow').textContent = `$${data.stats.totalEscrow || 0}`;
+                    document.getElementById('totalUsers').textContent = data.stats.totalUsers || 0;
+                    document.getElementById('activeCenters').textContent = data.stats.activeCenters || 0;
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

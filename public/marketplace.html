@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace - NexusHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .glass-dark { background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    </style>
+</head>
+<body class="font-sans">
+    <nav class="glass-dark fixed w-full z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="text-2xl font-bold text-white">NexusHub</a>
+                <div class="flex space-x-6">
+                    <a href="marketplace.html" class="text-white font-semibold">Marketplace</a>
+                    <a href="center-directory.html" class="text-white hover:text-gray-200">Centers</a>
+                    <a href="login.html" class="text-white hover:text-gray-200">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 pt-24 pb-20">
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-white mb-4">Project Marketplace</h1>
+            <p class="text-xl text-gray-200">Browse high-quality projects from verified training centers</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="glass-dark rounded-xl p-6 mb-8">
+            <div class="grid md:grid-cols-4 gap-4">
+                <input type="text" id="searchInput" placeholder="Search projects..." 
+                    class="px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none">
+                <select id="categoryFilter" class="px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white focus:outline-none">
+                    <option value="">All Categories</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mobile Apps">Mobile Apps</option>
+                    <option value="AI/ML">AI/ML</option>
+                    <option value="IoT">IoT</option>
+                </select>
+                <select id="difficultyFilter" class="px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white focus:outline-none">
+                    <option value="">All Difficulties</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+                <button onclick="loadProjects()" class="bg-purple-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-600">
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div id="projectsGrid" class="grid md:grid-cols-3 gap-6">
+            <!-- Projects will be loaded here -->
+        </div>
+
+        <div id="noProjects" class="hidden text-center text-white text-xl py-12">
+            No projects found. Try adjusting your filters.
+        </div>
+    </div>
+
+    <script>
+        async function loadProjects() {
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (category) params.append('category', category);
+
+            try {
+                const response = await fetch(`/api/projects?${params}`);
+                const data = await response.json();
+
+                const grid = document.getElementById('projectsGrid');
+                const noProjects = document.getElementById('noProjects');
+
+                if (data.projects.length === 0) {
+                    grid.innerHTML = '';
+                    noProjects.classList.remove('hidden');
+                    return;
+                }
+
+                noProjects.classList.add('hidden');
+                grid.innerHTML = data.projects.map(project => `
+                    <div class="glass-dark rounded-xl overflow-hidden hover:transform hover:scale-105 transition cursor-pointer"
+                         onclick="window.location.href='project-view.html?id=${project.id}'">
+                        <img src="${project.preview_image_url || 'https://via.placeholder.com/400x200'}" 
+                             alt="${project.title}" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-white mb-2">${project.title}</h3>
+                            <p class="text-gray-300 text-sm mb-4">${project.center_name}</p>
+                            <p class="text-gray-200 mb-4 line-clamp-2">${project.description.substring(0, 100)}...</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-2xl font-bold text-yellow-300">$${project.price}</span>
+                                <span class="text-gray-300 text-sm">${project.duration_weeks} weeks</span>
+                            </div>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                ${(project.technologies || []).slice(0, 3).map(tech => 
+                                    `<span class="glass px-2 py-1 rounded text-xs text-white">${tech}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                document.getElementById('projectsGrid').innerHTML = 
+                    '<div class="col-span-3 text-center text-white">Failed to load projects</div>';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadProjects);
+    </script>
+</body>
+</html>

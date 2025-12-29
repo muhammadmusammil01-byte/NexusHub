@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - NexusHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="font-sans flex items-center justify-center px-6 py-12">
+    <div class="glass rounded-2xl p-8 w-full max-w-md">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">Create Account</h1>
+            <p class="text-gray-200">Join NexusHub today</p>
+        </div>
+
+        <form id="registerForm" class="space-y-4">
+            <div>
+                <label class="block text-white font-semibold mb-2">Full Name</label>
+                <input 
+                    type="text" 
+                    id="fullName" 
+                    required 
+                    class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    placeholder="John Doe"
+                >
+            </div>
+
+            <div>
+                <label class="block text-white font-semibold mb-2">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    required 
+                    minlength="3"
+                    class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    placeholder="johndoe"
+                >
+            </div>
+
+            <div>
+                <label class="block text-white font-semibold mb-2">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    required 
+                    class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    placeholder="your.email@example.com"
+                >
+            </div>
+
+            <div>
+                <label class="block text-white font-semibold mb-2">Phone (Optional)</label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    placeholder="+1 234 567 8900"
+                >
+            </div>
+
+            <div>
+                <label class="block text-white font-semibold mb-2">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    required 
+                    minlength="6"
+                    class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    placeholder="••••••••"
+                >
+            </div>
+
+            <div>
+                <label class="block text-white font-semibold mb-2">I am a...</label>
+                <select 
+                    id="role" 
+                    required 
+                    class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                >
+                    <option value="" class="text-gray-800">Select your role</option>
+                    <option value="Student" class="text-gray-800">Student</option>
+                    <option value="Mentor" class="text-gray-800">Mentor</option>
+                    <option value="CenterAdmin" class="text-gray-800">Training Center Admin</option>
+                </select>
+            </div>
+
+            <div id="errorMessage" class="hidden bg-red-500 bg-opacity-20 border border-red-400 text-white px-4 py-3 rounded-lg"></div>
+            <div id="successMessage" class="hidden bg-green-500 bg-opacity-20 border border-green-400 text-white px-4 py-3 rounded-lg"></div>
+
+            <button 
+                type="submit" 
+                class="w-full bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+            >
+                Create Account
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-white">
+            <p>Already have an account? <a href="login.html" class="text-yellow-300 hover:text-yellow-200 font-semibold">Login</a></p>
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="index.html" class="text-gray-200 hover:text-white">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Get role from URL if present
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleParam = urlParams.get('role');
+        if (roleParam === 'student') {
+            document.getElementById('role').value = 'Student';
+        } else if (roleParam === 'center') {
+            document.getElementById('role').value = 'CenterAdmin';
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value
+            };
+
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successDiv.textContent = 'Account created successfully! Redirecting to login...';
+                    successDiv.classList.remove('hidden');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    errorDiv.textContent = data.error || 'Registration failed';
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

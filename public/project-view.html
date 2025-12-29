@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details - NexusHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .content-blur {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+        .watermark-overlay {
+            position: relative;
+        }
+        .watermark-overlay::before {
+            content: attr(data-watermark);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 48px;
+            color: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <!-- Navigation -->
+    <nav class="glass-dark fixed w-full z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <span class="text-2xl font-bold text-white">NexusHub</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="marketplace.html" class="text-white hover:text-gray-200">← Back to Marketplace</a>
+                    <a href="login.html" class="text-white hover:text-gray-200">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Shield Warning Banner -->
+    <div class="fixed top-20 left-0 right-0 bg-yellow-500 bg-opacity-90 text-black px-6 py-3 text-center z-40">
+        🛡️ <strong>Content Shield Active:</strong> This project is protected. Copying, screenshots, and right-click are disabled.
+    </div>
+
+    <!-- Project Details -->
+    <div class="container mx-auto px-6 pt-32 pb-20">
+        <div class="glass-dark rounded-2xl p-8 max-w-5xl mx-auto">
+            <div id="projectContent" class="watermark-overlay" data-watermark="">
+                <!-- Project Header -->
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h1 id="projectTitle" class="text-4xl font-bold text-white mb-2">Loading...</h1>
+                        <p id="projectCenter" class="text-xl text-gray-300"></p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-bold text-yellow-300" id="projectPrice">$0</div>
+                        <div class="text-gray-300 mt-1" id="projectDuration"></div>
+                    </div>
+                </div>
+
+                <!-- Project Image -->
+                <div id="projectImageContainer" class="mb-8 rounded-xl overflow-hidden">
+                    <img id="projectImage" src="" alt="Project Preview" class="w-full h-64 object-cover">
+                </div>
+
+                <!-- Project Details -->
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="glass p-4 rounded-lg">
+                        <div class="text-gray-300 text-sm mb-1">Category</div>
+                        <div id="projectCategory" class="text-white font-semibold"></div>
+                    </div>
+                    <div class="glass p-4 rounded-lg">
+                        <div class="text-gray-300 text-sm mb-1">Difficulty</div>
+                        <div id="projectDifficulty" class="text-white font-semibold"></div>
+                    </div>
+                    <div class="glass p-4 rounded-lg">
+                        <div class="text-gray-300 text-sm mb-1">Technologies</div>
+                        <div id="projectTechnologies" class="text-white font-semibold"></div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-white mb-4">Project Description</h2>
+                    <div id="projectDescription" class="text-gray-200 leading-relaxed"></div>
+                </div>
+
+                <!-- What You'll Learn -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-white mb-4">What You'll Learn</h2>
+                    <ul class="space-y-2 text-gray-200">
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>Hands-on experience with real-world project development</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>Mentorship from industry professionals</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>Access to Virtual Lab with AI-powered debugging</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>Smart QR Certificate upon completion</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Center Information -->
+                <div class="glass p-6 rounded-xl mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4">About the Training Center</h3>
+                    <div class="grid md:grid-cols-2 gap-4 text-gray-200">
+                        <div>
+                            <strong>Center:</strong> <span id="centerName"></span>
+                        </div>
+                        <div>
+                            <strong>Contact:</strong> <span id="centerEmail"></span>
+                        </div>
+                        <div>
+                            <strong>Phone:</strong> <span id="centerPhone"></span>
+                        </div>
+                        <div>
+                            <strong>Address:</strong> <span id="centerAddress"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                    <button onclick="enrollProject()" class="flex-1 bg-purple-500 text-white px-8 py-4 rounded-lg font-semibold hover:bg-purple-600 transition text-lg">
+                        💳 Enroll Now (Secure Escrow Payment)
+                    </button>
+                    <button class="glass text-white px-6 py-4 rounded-lg hover:bg-white hover:bg-opacity-20 transition">
+                        ❤️ Save
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Escrow Information -->
+        <div class="glass-dark rounded-xl p-6 max-w-5xl mx-auto mt-8">
+            <h3 class="text-xl font-bold text-white mb-3">🔒 Secure Escrow Payment</h3>
+            <p class="text-gray-200 mb-4">
+                Your payment is held securely by the NexusHub System Admin. Funds are only released to the training center 
+                after they issue your Smart QR Certificate upon project completion. This ensures you receive the full service you paid for.
+            </p>
+            <div class="grid md:grid-cols-3 gap-4 text-center">
+                <div class="glass p-4 rounded-lg">
+                    <div class="text-2xl mb-2">💰</div>
+                    <div class="text-white font-semibold">Pay Securely</div>
+                    <div class="text-gray-300 text-sm">Funds held in escrow</div>
+                </div>
+                <div class="glass p-4 rounded-lg">
+                    <div class="text-2xl mb-2">🎓</div>
+                    <div class="text-white font-semibold">Complete Project</div>
+                    <div class="text-gray-300 text-sm">Work with mentor</div>
+                </div>
+                <div class="glass p-4 rounded-lg">
+                    <div class="text-2xl mb-2">📜</div>
+                    <div class="text-white font-semibold">Get Certificate</div>
+                    <div class="text-gray-300 text-sm">Funds released</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Content Shield -->
+    <script src="js/security.js"></script>
+
+    <script>
+        let projectData = null;
+        let userInfo = null;
+
+        // Load project details
+        async function loadProject() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('id');
+
+            if (!projectId) {
+                alert('No project specified');
+                window.location.href = 'marketplace.html';
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`/api/projects/${projectId}`, { headers });
+                const data = await response.json();
+
+                if (response.ok) {
+                    projectData = data.project;
+                    userInfo = data.userInfo;
+                    displayProject();
+                    initializeContentShield();
+                } else {
+                    alert('Project not found');
+                    window.location.href = 'marketplace.html';
+                }
+            } catch (error) {
+                console.error('Error loading project:', error);
+                alert('Failed to load project');
+            }
+        }
+
+        function displayProject() {
+            document.getElementById('projectTitle').textContent = projectData.title;
+            document.getElementById('projectCenter').textContent = `by ${projectData.center_name}`;
+            document.getElementById('projectPrice').textContent = `$${projectData.price}`;
+            document.getElementById('projectDuration').textContent = `${projectData.duration_weeks} weeks`;
+            document.getElementById('projectCategory').textContent = projectData.category || 'General';
+            document.getElementById('projectDifficulty').textContent = projectData.difficulty_level || 'Intermediate';
+            document.getElementById('projectTechnologies').textContent = projectData.technologies?.join(', ') || 'Various';
+            document.getElementById('projectDescription').textContent = projectData.description;
+            
+            document.getElementById('centerName').textContent = projectData.center_name;
+            document.getElementById('centerEmail').textContent = projectData.center_email;
+            document.getElementById('centerPhone').textContent = projectData.contact_phone || 'N/A';
+            document.getElementById('centerAddress').textContent = projectData.center_address || 'N/A';
+
+            if (projectData.preview_image_url) {
+                document.getElementById('projectImage').src = projectData.preview_image_url;
+            } else {
+                document.getElementById('projectImage').src = 'https://via.placeholder.com/800x400?text=Project+Preview';
+            }
+        }
+
+        function initializeContentShield() {
+            // Determine watermark text
+            let watermarkText = projectData.watermark_text || 'NexusHub Protected';
+            
+            if (userInfo) {
+                watermarkText = `${userInfo.email} - ${userInfo.username}`;
+            } else {
+                // Use IP address if available (would need backend support)
+                watermarkText = 'NexusHub - Unauthorized Copy';
+            }
+
+            // Set watermark on container
+            document.getElementById('projectContent').setAttribute('data-watermark', watermarkText);
+
+            // Initialize Content Shield with configuration
+            ContentShield.init({
+                watermarkEnabled: true,
+                watermarkText: watermarkText,
+                watermarkOpacity: 0.08,
+                preventCopy: true,
+                preventScreenshot: true,
+                preventDevTools: false
+            });
+
+            // Mark content as protected
+            ContentShield.protect('#projectContent');
+        }
+
+        function enrollProject() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login to enroll in this project');
+                window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+                return;
+            }
+
+            // Redirect to enrollment page (would be implemented)
+            alert(`Enrolling in: ${projectData.title}\n\nPrice: $${projectData.price}\n\nYou will be redirected to secure escrow payment.`);
+            // window.location.href = `enroll.html?project=${projectData.id}`;
+        }
+
+        // Load project on page load
+        window.addEventListener('DOMContentLoaded', loadProject);
+    </script>
+</body>
+</html>
